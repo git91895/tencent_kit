@@ -32,10 +32,12 @@ import java.util.Map;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
+import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.ActivityResultListener;
 import io.github.v7lin.tencent_kit.content.TencentKitFileProvider;
 
@@ -109,12 +111,20 @@ public class TencentKitPlugin implements FlutterPlugin, ActivityAware, ActivityR
     private Tencent tencent;
 
     // --- FlutterPlugin
+    public static void registerWith(PluginRegistry.Registrar registrar) {
+        TencentKitPlugin instance = new TencentKitPlugin();
+        instance.onAttachedToEngine(registrar.context(), registrar.messenger());
+    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-        channel = new MethodChannel(binding.getBinaryMessenger(), "v7lin.github.io/tencent_kit");
+        onAttachedToEngine(binding.getApplicationContext(), binding.getBinaryMessenger());
+    }
+
+    private void onAttachedToEngine(Context applicationContext, BinaryMessenger messenger) {
+        channel = new MethodChannel(messenger, "v7lin.github.io/tencent_kit");
         channel.setMethodCallHandler(this);
-        applicationContext = binding.getApplicationContext();
+        this.applicationContext = applicationContext;
     }
 
     @Override
